@@ -32,10 +32,10 @@ Then run the python program.
 
 ###### Troubleshootings
 
-If you don't succeed to connect (the step after pairing), it might comes from your bluetooth daemon not running in compatibility mode. 
+If you don't succeed to connect (the step after pairing), it might comes from your Bluetooth daemon not running in compatibility mode. 
 On Fedora distribution, it's a known problem.
 
-To run your Bluetooth deamon in compatibility mode, open your Bluetooth.service configuration file. You can locate it running `systemctl status bluetooth`. Usually, it's located in `/usr/lib/systemd/system/bluetooth.service`.
+To run your Bluetooth deamon in compatibility mode, open your bluetooth.service configuration file. You can locate it running `systemctl status bluetooth`. Usually, it's located in `/usr/lib/systemd/system/bluetooth.service`.
 
 Your `ExecStart` variable should have the `-C` option at the end of the line:
 ```
@@ -45,5 +45,5 @@ If not, add it.
 
 Then, restart your Bluetooth daemon:
 ```
-sysemctl retsart bluetooth
+systemctl retsart bluetooth
 ```
