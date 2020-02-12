@@ -42,7 +42,7 @@ def backward(amount: int = 0):
     return MANUAL_FMT.pack(COMPAT, MANUAL, amount, BACKWARD)
 
 def stop_forward():
-    return MANUAL_FMT.pack(COMPAT, MANUAL, 0b000, STOP_FORWARDS)
+    return MANUAL_FMT.pack(COMPAT, MANUAL, 0b000, STOP_FORWARD)
 
 def stop_backward():
     return MANUAL_FMT.pack(COMPAT, MANUAL, 0b000, STOP_BACKWARD)
