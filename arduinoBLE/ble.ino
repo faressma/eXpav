@@ -10,6 +10,7 @@ BLEByteCharacteristic carMove(UUID_CHARACTERISTIC, BLERead | BLEWrite);
 void switchOnLEDs(void);
 void switchOffLEDs(void);
 void printBits(byte);
+void pwm(int, byte);
 
 
 void setup()
@@ -55,6 +56,13 @@ void loop()
   // listen for BLE peripherals to connect:
   BLEDevice remote_device = BLE.central();
 
+  for (size_t i = 0; i < 4; ++i) {
+    switchOnLEDs();
+    delay(200);
+    switchOffLEDs();
+    delay(200);
+  }
+
   // if a central is connected to peripheral:
   if (remote_device)
   {
@@ -70,14 +78,11 @@ void loop()
         byte value = carMove.value();
         Serial.print("Value received : 0b");
         printBits(value);
-        Serial.println();
-        
+
         if (bitRead(value, 7) == 1) { // compat mode = 1
-          switchOnLEDs();
           Serial.println("Extended mode");
         }
         else {
-          switchOffLEDs();
           Serial.println("Compat mode");
 
           if (bitRead(value, 6) == 1) {
@@ -85,34 +90,40 @@ void loop()
           }
           else {
             Serial.println("Manual mode");
-            byte mask = (1 << 3) - 1;
-
             Serial.print("Order : ");
 
-            switch (mask & value) {
+            switch (value & 7) { // on extrait les 3 derniers bits
               case 0x00:
                 Serial.println("stop_forward");
+                analogWrite(3, 0);
                 break;
               case 0x01:
                 Serial.println("forward");
+                pwm(3, value);
                 break;
               case 0x02:
                 Serial.println("stop_backward");
+                analogWrite(2, 0);
                 break;
               case 0x03:
                 Serial.println("backward");
+                pwm(2, value);
                 break;
               case 0x04:
                 Serial.println("stop_left");
+                digitalWrite(4, LOW);
                 break;
               case 0x05:
                 Serial.println("left");
+                digitalWrite(4, HIGH);
                 break;
               case 0x06:
                 Serial.println("stop_right");
+                digitalWrite(5, LOW);
                 break;
               case 0x07:
                 Serial.println("right");
+                digitalWrite(5, HIGH);
                 break;
               default:
                 Serial.println("Order not recognized");
@@ -124,31 +135,41 @@ void loop()
       }
     }
 
+    switchOffLEDs();
     Serial.println("Remote device disconnected");
     delay(1000);
   }
 }
 
-
-
-void switchOnLEDs() {
-  digitalWrite(2, HIGH);
-  digitalWrite(3, HIGH);
-  digitalWrite(4, HIGH);
-  digitalWrite(5, HIGH);
-}
-void switchOffLEDs() {
+void switchOffLEDs(void) {
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
   digitalWrite(5, LOW);
 }
 
-void printBits(byte myByte){
- for(byte mask = 0x80; mask; mask >>= 1){
-   if(mask  & myByte)
-       Serial.print('1');
-   else
-       Serial.print('0');
- }
+
+void switchOnLEDs(void) {
+  digitalWrite(2, HIGH);
+  digitalWrite(3, HIGH);
+  digitalWrite(4, HIGH);
+  digitalWrite(5, HIGH);
+}
+
+
+void printBits(byte myByte) {
+  for (byte mask = 0x80; mask; mask >>= 1) {
+    if (mask  & myByte)
+      Serial.print('1');
+    else
+      Serial.print('0');
+  }
+  Serial.println();
+}
+
+void pwm(int pin, byte value) {
+  byte speed = (((((value >> 3) - 1) & 7) + 1) << 5) - 1; // pour avoir 000 = 100% (beewii compat) et scale sur 3 bits (0-255)
+  analogWrite(pin, speed);
+  Serial.print("Speed (0 to 255) :");
+  Serial.println(speed);
 }
