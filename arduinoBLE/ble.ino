@@ -142,16 +142,16 @@ void loop()
 }
 
 void switchOffLEDs(void) {
-  digitalWrite(2, LOW);
-  digitalWrite(3, LOW);
+  analogWrite(2, 0);
+  analogWrite(3, 0);
   digitalWrite(4, LOW);
   digitalWrite(5, LOW);
 }
 
 
 void switchOnLEDs(void) {
-  digitalWrite(2, HIGH);
-  digitalWrite(3, HIGH);
+  analogWrite(2, 255);
+  analogWrite(3, 255);
   digitalWrite(4, HIGH);
   digitalWrite(5, HIGH);
 }
